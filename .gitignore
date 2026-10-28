@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# npm logs / caches
+npm-debug.log*
+.npm/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
+
+# Optional: uncomment to stop tracking build output and rebuild via `npm run build`
+# css/*.css
+# js/*.min.js
+# vendor/

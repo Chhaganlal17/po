@@ -1,16 +1,15 @@
 "use strict";
 
 // Load plugins
-const autoprefixer = require("gulp-autoprefixer");
+const autoprefixer = require("gulp-autoprefixer").default;
 const browsersync = require("browser-sync").create();
 const cleanCSS = require("gulp-clean-css");
 const del = require("del");
 const gulp = require("gulp");
 const header = require("gulp-header");
-const merge = require("merge-stream");
 const plumber = require("gulp-plumber");
 const rename = require("gulp-rename");
-const sass = require("gulp-sass");
+const sass = require("gulp-sass")(require("sass"));
 const uglify = require("gulp-uglify");
 
 // Load package.json for banner
@@ -47,33 +46,49 @@ function clean() {
   return del(["./vendor/"]);
 }
 
-// Bring third party dependencies from node_modules into vendor directory
-function modules() {
-  // Bootstrap
-  var bootstrap = gulp.src('./node_modules/bootstrap/dist/**/*')
+// Bring third party dependencies from node_modules into vendor directory.
+// Each copy is its own task so gulp.parallel waits on them correctly under
+// gulp 5 (the previous merge-stream approach is incompatible with streamx).
+function modulesBootstrap() {
+  return gulp.src('./node_modules/bootstrap/dist/**/*')
     .pipe(gulp.dest('./vendor/bootstrap'));
-  // Font Awesome CSS
-  var fontAwesomeCSS = gulp.src('./node_modules/@fortawesome/fontawesome-free/css/**/*')
+}
+function modulesFontAwesomeCSS() {
+  return gulp.src('./node_modules/@fortawesome/fontawesome-free/css/**/*')
     .pipe(gulp.dest('./vendor/fontawesome-free/css'));
-  // Font Awesome Webfonts
-  var fontAwesomeWebfonts = gulp.src('./node_modules/@fortawesome/fontawesome-free/webfonts/**/*')
+}
+function modulesFontAwesomeWebfonts() {
+  return gulp.src('./node_modules/@fortawesome/fontawesome-free/webfonts/**/*')
     .pipe(gulp.dest('./vendor/fontawesome-free/webfonts'));
-  // jQuery Easing
-  var jqueryEasing = gulp.src('./node_modules/jquery.easing/*.js')
+}
+function modulesJqueryEasing() {
+  return gulp.src('./node_modules/jquery.easing/*.js')
     .pipe(gulp.dest('./vendor/jquery-easing'));
-  // jQuery
-  var jquery = gulp.src([
+}
+function modulesJquery() {
+  return gulp.src([
       './node_modules/jquery/dist/*',
       '!./node_modules/jquery/dist/core.js'
     ])
     .pipe(gulp.dest('./vendor/jquery'));
-  // Simple Line Icons
-  var simpleLineIconsFonts = gulp.src('./node_modules/simple-line-icons/fonts/**')
-    .pipe(gulp.dest('./vendor/simple-line-icons/fonts'));
-  var simpleLineIconsCSS = gulp.src('./node_modules/simple-line-icons/css/**')
-    .pipe(gulp.dest('./vendor/simple-line-icons/css'));
-  return merge(bootstrap, fontAwesomeCSS, fontAwesomeWebfonts, jquery, jqueryEasing, simpleLineIconsFonts, simpleLineIconsCSS);
 }
+function modulesSimpleLineIconsFonts() {
+  return gulp.src('./node_modules/simple-line-icons/fonts/**')
+    .pipe(gulp.dest('./vendor/simple-line-icons/fonts'));
+}
+function modulesSimpleLineIconsCSS() {
+  return gulp.src('./node_modules/simple-line-icons/css/**')
+    .pipe(gulp.dest('./vendor/simple-line-icons/css'));
+}
+const modules = gulp.parallel(
+  modulesBootstrap,
+  modulesFontAwesomeCSS,
+  modulesFontAwesomeWebfonts,
+  modulesJquery,
+  modulesJqueryEasing,
+  modulesSimpleLineIconsFonts,
+  modulesSimpleLineIconsCSS
+);
 
 // CSS task
 function css() {
