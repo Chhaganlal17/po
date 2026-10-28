@@ -51,3 +51,17 @@ a {
 .text-secondary {
   color: $secondary !important;
 }
+
+// Bootstrap 5 removed the .jumbotron component. This shim restores the exact
+// Bootstrap 4 appearance for the Work Experience panel (<div class="row ... jumbotron">).
+.jumbotron {
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+  background-color: $gray-200;
+  border-radius: 0.3rem;
+}
+@media (min-width: 576px) {
+  .jumbotron {
+    padding: 4rem 2rem;
+  }
+}
